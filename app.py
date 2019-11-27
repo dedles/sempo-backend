@@ -4,6 +4,7 @@ from flask_cors import CORS
 from web3.auto import w3
 from flask_sqlalchemy import SQLAlchemy 
 from flask_marshmallow import Marshmallow 
+from functions import convert_key_to_emoji
 
 
 app = Flask(__name__)
@@ -52,8 +53,14 @@ def post():
     db.session.add(new_account)
     db.session.commit()
 
-    return account_schema.jsonify(new_account)
-    
+    emoji = convert_key_to_emoji(new_account.private_key)
+
+    return jsonify({
+        'address': new_account.address,
+        'emoji_key': emoji,
+        'name': new_account.name,
+        "id": new_account.id
+    })
 
 @app.route('/accounts', methods=['GET'])
 def accounts():
@@ -64,4 +71,3 @@ def accounts():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
