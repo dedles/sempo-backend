@@ -10,6 +10,7 @@ pylint = "*"
 flask = "*"
 eth-account = "*"
 web3 = "*"
+flask-cors = "*"
 
 [requires]
 python_version = "3.6.5"

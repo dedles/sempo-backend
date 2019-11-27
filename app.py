@@ -1,9 +1,13 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import os
-
 from web3.auto import w3
 
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 app = Flask(__name__)
+CORS(app)
+
 
 @app.route('/', methods=['GET'])
 def get():
@@ -11,10 +15,14 @@ def get():
 
 @app.route('/create', methods=['POST'])
 def post():
-    acct = w3.eth.account.create('KEYSMASH FJAFJKLDSKF7JKFDJ 1530')
-    acct.address
+    name = request.json['name']
+    acct = w3.eth.account.create(name)
+    
     return jsonify({
-        'amazebert': acct.address
+        "name": name,
+        "address": acct.address,
+        "key": acct.key.hex(),
+        "privateKey": acct.privateKey.hex(),
     })
 
 
