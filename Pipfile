@@ -11,6 +11,9 @@ flask = "*"
 eth-account = "*"
 web3 = "*"
 flask-cors = "*"
+flask-sqlalchemy = "*"
+marshmallow-sqlalchemy = "*"
+flask-marshmallow = "*"
 
 [requires]
 python_version = "3.6.5"
