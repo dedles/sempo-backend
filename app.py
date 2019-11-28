@@ -4,7 +4,7 @@ from flask_cors import CORS
 from web3.auto import w3
 from flask_sqlalchemy import SQLAlchemy 
 from flask_marshmallow import Marshmallow 
-from functions import convert_key_to_emoji
+from functions import convert_key_to_emoji, decrypt_emoji
 
 
 app = Flask(__name__)
@@ -61,6 +61,17 @@ def post():
         'name': new_account.name,
         "id": new_account.id
     })
+
+@app.route('/getname', methods=['POST'])
+def name():
+    emoji_key = request.json['emoji_key']
+    # '0xc9cce1456cd877965382a6aadd51395efb54f71973e85685d7dc9e17987'
+    s = "0x346220d1c649124fc913b5b015424122a86e27ee61fe4558b36fb25bcc560a87"
+    priv_key = decrypt_emoji(emoji_key)
+    account = Account.query.filter(Account.private_key.contains(s)).all()
+    return jsonify(account_schema.dump(account[0]))
+
+
 
 @app.route('/accounts', methods=['GET'])
 def accounts():

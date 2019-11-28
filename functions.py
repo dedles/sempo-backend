@@ -4,6 +4,8 @@ import numpy
 # b29_string = "5ES4LLB39EGGOMHOOC282S7N6FKBF92BR1DRNN09QB29NLSENA54F"
 # emojis = '🍀🌼🌜🌎🌟🔥🌩❄️🌊😂😃😎😚🤗😮😬😱😇😈👹💀👻👽🤖😽🚀🎉♻️☎️🔮'
 
+# em_key = "❄️😂🎉♻️🎉🤖👹🔮🌩👹😇😱🔥👻😮😃😚💀🍀😂🌊🌜🤗❄️🌎👹😃😚👹🍀😬🌼💀❄️😽🌼🎉👹🌎🌟🚀🌎🤖🍀🌎🍀👽😇🔥😇🔥😽🌩"
+
 b29_emoji_dict = {
     "0": "🍀",
     "1": "🌼",
@@ -48,9 +50,21 @@ def convert_hex_to_29(hex):
 
 def convert_b29_to_emoji(b29):
     arr = list(b29)
-    new_arr = []
     new_string = ''
     for char in arr:
-        new_arr.append(b29_emoji_dict[char])
         new_string += b29_emoji_dict[char]
     return new_string
+
+def decrypt_emoji(em_key):
+    arr = list(em_key)
+    alnum = ''
+    for char in arr:
+        for key, value in b29_emoji_dict.items():
+            if char == value:
+                alnum += str(key)
+                
+    base10 = int(alnum, 29)
+    hex = numpy.base_repr(base10, 16).lower()
+    return '0x' + hex
+
+# print(decrypt_emoji(em_key))
