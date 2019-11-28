@@ -9,12 +9,13 @@ from functions import convert_key_to_emoji, decrypt_emoji
 
 app = Flask(__name__)
 CORS(app)
+
+# sql configuration
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'db.sqlite')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
-
 ma = Marshmallow(app)
 
 class Account(db.Model):
@@ -29,10 +30,9 @@ class Account(db.Model):
         self.address = address
 
 # Account Schema
-
 class AccountSchema(ma.Schema):
     class Meta:
-        fields = ('id', 'name', 'private_key', 'address')
+        fields = ('id', 'name', 'address')
 
 account_schema = AccountSchema()
 accounts_schema = AccountSchema(many=True)
@@ -48,11 +48,12 @@ def post():
     private_key = acct.privateKey.hex()
     address = acct.address
 
+    # save to db
     new_account = Account(name, private_key, address)
-
     db.session.add(new_account)
     db.session.commit()
 
+    # create emoji string
     emoji = convert_key_to_emoji(new_account.private_key)
 
     return jsonify({
@@ -65,20 +66,15 @@ def post():
 @app.route('/getname', methods=['POST'])
 def name():
     emoji_key = request.json['emoji_key']
-    # '0xc9cce1456cd877965382a6aadd51395efb54f71973e85685d7dc9e17987'
-    s = "0x346220d1c649124fc913b5b015424122a86e27ee61fe4558b36fb25bcc560a87"
     priv_key = decrypt_emoji(emoji_key)
-    account = Account.query.filter(Account.private_key.contains(s)).all()
+    account = Account.query.filter(Account.private_key.contains(priv_key)).all()
     return jsonify(account_schema.dump(account[0]))
-
-
 
 @app.route('/accounts', methods=['GET'])
 def accounts():
     all_accounts = Account.query.all()
     result = accounts_schema.dump(all_accounts)
     return jsonify(result)
-
 
 if __name__ == '__main__':
     app.run(debug=True)
