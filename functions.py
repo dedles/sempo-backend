@@ -6,6 +6,8 @@ import numpy
 
 # em_key = "❄️😂🎉♻️🎉🤖👹🔮🌩👹😇😱🔥👻😮😃😚💀🍀😂🌊🌜🤗❄️🌎👹😃😚👹🍀😬🌼💀❄️😽🌼🎉👹🌎🌟🚀🌎🤖🍀🌎🍀👽😇🔥😇🔥😽🌩"
 
+key_prefix = '0x'
+
 b29_emoji_dict = {
     "0": "🍀",
     "1": "🌼",
@@ -14,7 +16,7 @@ b29_emoji_dict = {
     "4": "🌟",
     "5": "🔥",
     "6": "🌩",
-    "7": "❄️",
+    "7": "🌭",
     "8": "🌊",
     "9": "😂",
     "A": "😃",
@@ -34,37 +36,48 @@ b29_emoji_dict = {
     "O": "😽",
     "P": "🚀",
     "Q": "🎉",
-    "R": "♻️",
+    "R": "🌮",
     "S": "🔮"
 } 
 
-def convert_key_to_emoji(key):
-    key_arr = key.split('0x')
-    b29 = convert_hex_to_29(key_arr[1])
-    return convert_b29_to_emoji(b29)
-
-def convert_hex_to_29(hex):
-    base10 = int(hex, 16)
-    base29 = numpy.base_repr(base10, 29)
+def convert_hex_to_b10(hex):
+    return int(hex, 16)
+    
+def convert_b10_to_b29(b10):
+    base29 = numpy.base_repr(b10, 29)
     return base29
+
+def convert_b29_to_b10(b29):
+    return int(b29, 29)
+
+def convert_b10_to_hex(b10):
+    return numpy.base_repr(b10, 16).lower()
+
 
 def convert_b29_to_emoji(b29):
     arr = list(b29)
-    new_string = ''
+    em_string = ''
     for char in arr:
-        new_string += b29_emoji_dict[char]
-    return new_string
+        em_string += b29_emoji_dict[char]
+    return em_string
 
-def decrypt_emoji(em_key):
-    arr = list(em_key)
+def convert_emoji_to_b29(em_string):
+    arr = list(em_string)
     alnum = ''
     for char in arr:
         for key, value in b29_emoji_dict.items():
             if char == value:
                 alnum += str(key)
-                
-    base10 = int(alnum, 29)
-    hex = numpy.base_repr(base10, 16).lower()
-    return '0x' + hex
+    return alnum
 
-# print(decrypt_emoji(em_key))
+def convert_key_to_emoji(key):
+    key_arr = key.split(key_prefix)
+    b10 = convert_hex_to_b10(key_arr[1])
+    b29 = convert_b10_to_b29(b10)
+    return convert_b29_to_emoji(b29)
+
+def decrypt_emoji(em_key):
+    b29 = convert_emoji_to_b29(em_key)
+    base10 = convert_b29_to_b10(b29)
+    hex = convert_b10_to_hex(base10)
+    return key_prefix + hex
